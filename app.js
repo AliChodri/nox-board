@@ -47,26 +47,26 @@ function renderBoard(data) {
   data.narratives.forEach(n => {
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `
-      <div class="title">${n.title}</div>
-      <div class="thesis">${n.thesis}</div>
-      <div class="row">
-        <div>
-          <div class="price">${n.price}</div>
-          <div class="leader">24h ${n.last_move > 0 ? "+" : ""}${n.last_move} • Vol ${n.volume_24h}</div>
-        </div>
-        <div style="display:flex; gap:8px;">
-          <button data-side="long" data-id="${n.id}">Long</button>
-          <button data-side="short" data-id="${n.id}">Short</button>
-          ${`<a href="${DEMOS[n.id]||'#'}" target="_blank" style="display:${DEMOS[n.id]?'inline-block':'none'};text-decoration:none">
-   <button>Demo</button>
- </a>`}
+  card.innerHTML = `
+  <div class="title">${n.title}</div>
+  <div class="thesis">${n.thesis}</div>
+  <div class="row">
+    <div>
+      <div class="price">${n.price}</div>
+      <div class="leader">24h ${n.last_move > 0 ? "+" : ""}${n.last_move} • Vol ${n.volume_24h}</div>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button data-side="long" data-id="${n.id}">Long</button>
+      <button data-side="short" data-id="${n.id}">Short</button>
+      ${ DEMOS[n.id]
+        ? `<a href="${DEMOS[n.id]}" target="_blank" rel="noopener" style="text-decoration:none"><button>Demo</button></a>`
+        : `` }
+    </div>
+  </div>
+  <div class="notice">Exercise Track: ${n.exercise || 0}%</div>
+  <canvas class="spark"></canvas>
+`;
 
-        </div>
-      </div>
-      <div class="notice">Exercise Track: ${n.exercise || 0}%</div>
-      <canvas class="spark"></canvas>
-    `;
     grid.appendChild(card);
     const spark = card.querySelector(".spark");
     const pts = Array.from({length: 24}, () => n.price + Math.round((Math.random() - 0.5) * 8));
