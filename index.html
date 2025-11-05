@@ -20,7 +20,7 @@
     .row { display:flex; align-items:center; justify-content:space-between; margin-top:10px; }
     .price { font-weight:800; font-size: 22px; }
     .leader { font-size: 12px; color:#b9bcc2; }
-    .notice { background:#0b0d11; border:1px dashed #2a2d34; padding:10px; border-radius:10px; margin-top: 8px; font-size: 12px; color:#b9bcc2;}
+    .notice { background:#0b0d11; border:1px dashed #2a2d34; padding:10px; border-radius:10px; margin-top: 8px; font-size: 12px; color:#b9bcc2; }
     .spark { height: 30px; width: 100%; }
     footer { padding: 30px; text-align:center; color:#8a8f98; }
   </style>
@@ -33,21 +33,25 @@
       <button id="loginBtn">Sign Handle / +100 pts</button>
     </div>
   </header>
+
   <main>
     <section id="board" class="grid"></section>
   </main>
+
   <footer>Points-only. Research & entertainment. No securities.</footer>
 
   <script>
-  // ===== inline NOX app (no external JS, avoids 404) =====
+  // ===== inline NOX app (single-file) =====
   const ENDPOINTS = {
     BOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=board",
     TRADE: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=trade",
     LEADERBOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=leaderboard"
   };
 
+  // Map narrative IDs -> demo URLs
   const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/" };
 
+  // Fallback data so cards render even if API is unreachable
   const SAMPLE_BOARD = {
     narratives: [
       { id: "e1", title: "On-device HR copilots", thesis: "Private HR assistants on laptops/phones (compliance, low latency).", price: 58, volume_24h: 90, last_move: +2, exercise: 52 },
@@ -84,31 +88,33 @@
   function renderBoard(data) {
     const grid = document.getElementById("board");
     grid.innerHTML = "";
+
     data.narratives.forEach(n => {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <div class="title">\${n.title}</div>
-        <div class="thesis">\${n.thesis}</div>
+        <div class="title">${n.title}</div>
+        <div class="thesis">${n.thesis}</div>
         <div class="row">
           <div>
-            <div class="price">\${n.price}</div>
-            <div class="leader">24h \${n.last_move > 0 ? "+" : ""}\${n.last_move} • Vol \${n.volume_24h}</div>
+            <div class="price">${n.price}</div>
+            <div class="leader">24h ${n.last_move > 0 ? "+" : ""}${n.last_move} • Vol ${n.volume_24h}</div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
-            <button data-side="long" data-id="\${n.id}">Long</button>
-            <button data-side="short" data-id="\${n.id}">Short</button>
-            \${ DEMOS[n.id]
-              ? \`<a href="\${DEMOS[n.id]}" target="_blank" rel="noopener" style="text-decoration:none"><button>Demo</button></a>\`
+            <button data-side="long" data-id="${n.id}">Long</button>
+            <button data-side="short" data-id="${n.id}">Short</button>
+            ${ DEMOS[n.id]
+              ? `<a href="${DEMOS[n.id]}" target="_blank" rel="noopener" style="text-decoration:none"><button>Demo</button></a>`
               : `` }
           </div>
         </div>
-        <div class="notice">Exercise Track: \${n.exercise || 0}%</div>
+        <div class="notice">Exercise Track: ${n.exercise || 0}%</div>
         <canvas class="spark"></canvas>
       `;
       grid.appendChild(card);
+
       const spark = card.querySelector(".spark");
-      const pts = Array.from({length: 24}, () => n.price + Math.round((Math.random() - 0.5) * 8));
+      const pts = Array.from({ length: 24 }, () => n.price + Math.round((Math.random() - 0.5) * 8));
       renderSparkline(spark, pts);
     });
 
@@ -126,7 +132,7 @@
         try {
           const r = await fetch(ENDPOINTS.TRADE, {
             method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, // simple request (no preflight)
             body: JSON.stringify(payload)
           });
           const msg = await r.text();
@@ -146,7 +152,7 @@
     if (loginBtn) {
       loginBtn.addEventListener("click", () => {
         const h = prompt("Pick a handle (letters/numbers).");
-        if (h) { localStorage.setItem("nox_handle", h); alert(\`Welcome \${h}! You have 100 points today.\`); }
+        if (h) { localStorage.setItem("nox_handle", h); alert(`Welcome ${h}! You have 100 points today.`); }
       });
     }
     const board = await fetchBoard();
