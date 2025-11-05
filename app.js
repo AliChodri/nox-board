@@ -5,6 +5,8 @@ const ENDPOINTS = {
   LEADERBOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=leaderboard"
 };
 
+const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/" };
+
 // Fallback sample so cards render even if API fails
 const SAMPLE_BOARD = {
   narratives: [
@@ -56,6 +58,10 @@ function renderBoard(data) {
         <div style="display:flex; gap:8px;">
           <button data-side="long" data-id="${n.id}">Long</button>
           <button data-side="short" data-id="${n.id}">Short</button>
+          ${`<a href="${DEMOS[n.id]||'#'}" target="_blank" style="display:${DEMOS[n.id]?'inline-block':'none'};text-decoration:none">
+   <button>Demo</button>
+ </a>`}
+
         </div>
       </div>
       <div class="notice">Exercise Track: ${n.exercise || 0}%</div>
