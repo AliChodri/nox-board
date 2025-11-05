@@ -5,9 +5,10 @@ const ENDPOINTS = {
   LEADERBOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=leaderboard"
 };
 
+// Map narrative IDs -> demo URLs
 const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/" };
 
-// Fallback sample so cards render even if the API fails
+// Fallback data so cards render even if API is unreachable
 const SAMPLE_BOARD = {
   narratives: [
     { id: "e1", title: "On-device HR copilots", thesis: "Private HR assistants on laptops/phones (compliance, low latency).", price: 58, volume_24h: 90, last_move: +2, exercise: 52 },
@@ -71,7 +72,7 @@ function renderBoard(data) {
     grid.appendChild(card);
 
     const spark = card.querySelector(".spark");
-    const pts = Array.from({length: 24}, () => n.price + Math.round((Math.random() - 0.5) * 8));
+    const pts = Array.from({ length: 24 }, () => n.price + Math.round((Math.random() - 0.5) * 8));
     renderSparkline(spark, pts);
   });
 
