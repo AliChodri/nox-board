@@ -1,8 +1,9 @@
 const ENDPOINTS = {
-  BOARD: "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhjiroKBdSUtSQUs2DlFGRlU3NE3O0qVIln2S2u8PXZaKB1XPvH4-7U3VvwrlJpfc57V6qEedw1yDCtU-Ypt4exh2SC_-p2XQmqnZsTi5vVTEdY8gQUPFlu4TqXNwbGSrNGKNLfkAFiz8A8ycDWYUh9d3dBPLeYFABtGu4PEv5nnLXkpSF2eexyeuSmyuu1CBcsiOZmaRGRH7VAaqM9xUV_RxPbFfoOUsemP_akc7LcWP35VMkY_naD4YunkA&lib=MjPw__fcNvRduNEIKCVOmADU45U1klR7t",
-  TRADE: "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhjiroKBdSUtSQUs2DlFGRlU3NE3O0qVIln2S2u8PXZaKB1XPvH4-7U3VvwrlJpfc57V6qEedw1yDCtU-Ypt4exh2SC_-p2XQmqnZsTi5vVTEdY8gQUPFlu4TqXNwbGSrNGKNLfkAFiz8A8ycDWYUh9d3dBPLeYFABtGu4PEv5nnLXkpSF2eexyeuSmyuu1CBcsiOZmaRGRH7VAaqM9xUV_RxPbFfoOUsemP_akc7LcWP35VMkY_naD4YunkA&lib=MjPw__fcNvRduNEIKCVOmADU45U1klR7t",
-  LEADERBOARD: "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhjiroKBdSUtSQUs2DlFGRlU3NE3O0qVIln2S2u8PXZaKB1XPvH4-7U3VvwrlJpfc57V6qEedw1yDCtU-Ypt4exh2SC_-p2XQmqnZsTi5vVTEdY8gQUPFlu4TqXNwbGSrNGKNLfkAFiz8A8ycDWYUh9d3dBPLeYFABtGu4PEv5nnLXkpSF2eexyeuSmyuu1CBcsiOZmaRGRH7VAaqM9xUV_RxPbFfoOUsemP_akc7LcWP35VMkY_naD4YunkA&lib=MjPw__fcNvRduNEIKCVOmADU45U1klR7t"
+  BOARD: "https://script.google.com/macros/s/PASTE_YOUR_ID/exec?route=board",
+  TRADE: "https://script.google.com/macros/s/PASTE_YOUR_ID/exec?route=trade",
+  LEADERBOARD: "https://script.google.com/macros/s/PASTE_YOUR_ID/exec?route=leaderboard"
 };
+
 
 async function fetchBoard() {
   try { const r = await fetch(ENDPOINTS.BOARD); return await r.json(); }
