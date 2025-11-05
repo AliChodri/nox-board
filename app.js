@@ -1,13 +1,34 @@
+// ===== NOX app.js (known-good) =====
+// 1) Replace YOUR_WEB_APP_URL_HERE with your Apps Script Web App URL (ends with /exec)
 const ENDPOINTS = {
-  BOARD: "https://script.google.com/macros/s/PASTE_YOUR_ID/exec?route=board",
-  TRADE: "https://script.google.com/macros/s/PASTE_YOUR_ID/exec?route=trade",
-  LEADERBOARD: "https://script.google.com/macros/s/PASTE_YOUR_ID/exec?route=leaderboard"
+  BOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=board",
+  TRADE: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=trade",
+  LEADERBOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=leaderboard"
 };
 
+// 2) Sample fallback so cards render even if the API URL is wrong
+const SAMPLE_BOARD = {
+  narratives: [
+    { id: "e1", title: "On-device HR copilots", thesis: "Private HR assistants on laptops/phones (compliance, low latency).", price: 58, volume_24h: 90, last_move: +2, exercise: 52 },
+    { id: "e2", title: "Edge RAG for Field Service", thesis: "Local doc Q&A for field techs (offline manuals + photos).", price: 63, volume_24h: 140, last_move: +5, exercise: 70 },
+    { id: "e3", title: "Retail Loss Prevention Vision", thesis: "Tiny models on cameras for shrink detection, no cloud feed.", price: 61, volume_24h: 120, last_move: +4, exercise: 66 }
+  ]
+};
 
 async function fetchBoard() {
-  try { const r = await fetch(ENDPOINTS.BOARD); return await r.json(); }
-  catch { return { narratives: [] }; }
+  try {
+    const r = await fetch(ENDPOINTS.BOARD, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    if (!j || !Array.isArray(j.narratives) || j.narratives.length === 0) {
+      console.warn("API returned no narratives. Falling back to SAMPLE_BOARD.");
+      return SAMPLE_BOARD;
+    }
+    return j;
+  } catch (e) {
+    console.warn("Fetch failed, using SAMPLE_BOARD fallback:", e);
+    return SAMPLE_BOARD;
+  }
 }
 
 function renderSparkline(canvas, points) {
@@ -76,4 +97,7 @@ document.getElementById("loginBtn").addEventListener("click", () => {
   if (h) { localStorage.setItem("nox_handle", h); alert(`Welcome ${h}! You have 100 points today.`); }
 });
 
-(async function init(){ const board = await fetchBoard(); renderBoard(board); })();
+(async function init(){
+  const board = await fetchBoard();
+  renderBoard(board);
+})();
