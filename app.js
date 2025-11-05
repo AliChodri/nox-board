@@ -1,12 +1,11 @@
-// ===== NOX app.js (known-good) =====
-// 1) Replace YOUR_WEB_APP_URL_HERE with your Apps Script Web App URL (ends with /exec)
+// ===== NOX app.js (simple-request trades; no CORS preflight) =====
 const ENDPOINTS = {
   BOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=board",
   TRADE: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=trade",
   LEADERBOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=leaderboard"
 };
 
-// 2) Sample fallback so cards render even if the API URL is wrong
+// Fallback sample so cards render even if API fails
 const SAMPLE_BOARD = {
   narratives: [
     { id: "e1", title: "On-device HR copilots", thesis: "Private HR assistants on laptops/phones (compliance, low latency).", price: 58, volume_24h: 90, last_move: +2, exercise: 52 },
@@ -20,10 +19,7 @@ async function fetchBoard() {
     const r = await fetch(ENDPOINTS.BOARD, { cache: "no-store" });
     if (!r.ok) throw new Error("HTTP " + r.status);
     const j = await r.json();
-    if (!j || !Array.isArray(j.narratives) || j.narratives.length === 0) {
-      console.warn("API returned no narratives. Falling back to SAMPLE_BOARD.");
-      return SAMPLE_BOARD;
-    }
+    if (!j || !Array.isArray(j.narratives) || j.narratives.length === 0) return SAMPLE_BOARD;
     return j;
   } catch (e) {
     console.warn("Fetch failed, using SAMPLE_BOARD fallback:", e);
@@ -71,22 +67,31 @@ function renderBoard(data) {
     renderSparkline(spark, pts);
   });
 
+  // >>> THIS is the click handler block <<<
   grid.querySelectorAll("button[data-side]").forEach(btn => {
     btn.addEventListener("click", async () => {
       const side = btn.dataset.side, id = btn.dataset.id;
-      const handle = localStorage.getItem("nox_handle") || prompt("Pick a handle");
-      if (!handle) return;
-      localStorage.setItem("nox_handle", handle);
+      let handle = localStorage.getItem("nox_handle");
+      if (!handle) {
+        handle = prompt("Pick a handle (letters/numbers)");
+        if (!handle) return;
+        localStorage.setItem("nox_handle", handle);
+      }
       const payload = { user: handle, narrative_id: id, side, points: 10 };
+
+      // SEND TRADE as a "simple request" to avoid CORS preflight
       try {
         const r = await fetch(ENDPOINTS.TRADE, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // no preflight
+          body: JSON.stringify(payload) // Apps Script reads e.postData.contents
         });
-        alert(await r.text());
+        const msg = await r.text();
+        alert(msg);
         location.reload();
       } catch (e) {
-        alert("Trade failed. Check console."); console.error(e);
+        console.error(e);
+        alert("Trade failed. Check console.");
       }
     });
   });
