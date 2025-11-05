@@ -1,4 +1,4 @@
-// ===== NOX app.js (simple-request trades; no CORS preflight) =====
+// ===== NOX app.js (safe init + simple-request trades) =====
 const ENDPOINTS = {
   BOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=board",
   TRADE: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=trade",
@@ -7,7 +7,7 @@ const ENDPOINTS = {
 
 const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/" };
 
-// Fallback sample so cards render even if API fails
+// Fallback sample so cards render even if the API fails
 const SAMPLE_BOARD = {
   narratives: [
     { id: "e1", title: "On-device HR copilots", thesis: "Private HR assistants on laptops/phones (compliance, low latency).", price: 58, volume_24h: 90, last_move: +2, exercise: 52 },
@@ -43,37 +43,39 @@ function renderSparkline(canvas, points) {
 
 function renderBoard(data) {
   const grid = document.getElementById("board");
+  if (!grid) return console.error("#board container not found");
   grid.innerHTML = "";
+
   data.narratives.forEach(n => {
     const card = document.createElement("div");
     card.className = "card";
-  card.innerHTML = `
-  <div class="title">${n.title}</div>
-  <div class="thesis">${n.thesis}</div>
-  <div class="row">
-    <div>
-      <div class="price">${n.price}</div>
-      <div class="leader">24h ${n.last_move > 0 ? "+" : ""}${n.last_move} • Vol ${n.volume_24h}</div>
-    </div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <button data-side="long" data-id="${n.id}">Long</button>
-      <button data-side="short" data-id="${n.id}">Short</button>
-      ${ DEMOS[n.id]
-        ? `<a href="${DEMOS[n.id]}" target="_blank" rel="noopener" style="text-decoration:none"><button>Demo</button></a>`
-        : `` }
-    </div>
-  </div>
-  <div class="notice">Exercise Track: ${n.exercise || 0}%</div>
-  <canvas class="spark"></canvas>
-`;
-
+    card.innerHTML = `
+      <div class="title">${n.title}</div>
+      <div class="thesis">${n.thesis}</div>
+      <div class="row">
+        <div>
+          <div class="price">${n.price}</div>
+          <div class="leader">24h ${n.last_move > 0 ? "+" : ""}${n.last_move} • Vol ${n.volume_24h}</div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button data-side="long" data-id="${n.id}">Long</button>
+          <button data-side="short" data-id="${n.id}">Short</button>
+          ${ DEMOS[n.id]
+            ? `<a href="${DEMOS[n.id]}" target="_blank" rel="noopener" style="text-decoration:none"><button>Demo</button></a>`
+            : `` }
+        </div>
+      </div>
+      <div class="notice">Exercise Track: ${n.exercise || 0}%</div>
+      <canvas class="spark"></canvas>
+    `;
     grid.appendChild(card);
+
     const spark = card.querySelector(".spark");
     const pts = Array.from({length: 24}, () => n.price + Math.round((Math.random() - 0.5) * 8));
     renderSparkline(spark, pts);
   });
 
-  // >>> THIS is the click handler block <<<
+  // Click handlers for trades
   grid.querySelectorAll("button[data-side]").forEach(btn => {
     btn.addEventListener("click", async () => {
       const side = btn.dataset.side, id = btn.dataset.id;
@@ -84,13 +86,11 @@ function renderBoard(data) {
         localStorage.setItem("nox_handle", handle);
       }
       const payload = { user: handle, narrative_id: id, side, points: 10 };
-
-      // SEND TRADE as a "simple request" to avoid CORS preflight
       try {
         const r = await fetch(ENDPOINTS.TRADE, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" }, // no preflight
-          body: JSON.stringify(payload) // Apps Script reads e.postData.contents
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // simple request (no preflight)
+          body: JSON.stringify(payload)
         });
         const msg = await r.text();
         alert(msg);
@@ -103,12 +103,18 @@ function renderBoard(data) {
   });
 }
 
-document.getElementById("loginBtn").addEventListener("click", () => {
-  const h = prompt("Pick a handle (letters/numbers).");
-  if (h) { localStorage.setItem("nox_handle", h); alert(`Welcome ${h}! You have 100 points today.`); }
-});
+// Wait for DOM before wiring UI
+window.addEventListener("DOMContentLoaded", async () => {
+  const loginBtn = document.getElementById("loginBtn");
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+      const h = prompt("Pick a handle (letters/numbers).");
+      if (h) { localStorage.setItem("nox_handle", h); alert(`Welcome ${h}! You have 100 points today.`); }
+    });
+  } else {
+    console.warn("#loginBtn not found");
+  }
 
-(async function init(){
   const board = await fetchBoard();
   renderBoard(board);
-})();
+});
