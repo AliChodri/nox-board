@@ -33,9 +33,12 @@
       <button id="loginBtn">Sign Handle / +100 pts</button>
     </div>
   </header>
-  <main><section id="board" class="grid"></section></main>
+  <main>
+    <section id="board" class="grid"></section>
+  </main>
   <footer>Points-only. Research & entertainment. No securities.</footer>
-  <script src="./app.js?v=3"></script>
 
+  <!-- Load JS at end so DOM exists first; add cache-bust -->
+  <script src="./app.js?v=4" defer></script>
 </body>
 </html>
