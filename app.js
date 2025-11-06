@@ -9,7 +9,7 @@ const ENDPOINTS = {
 
 
 // Optional: demo links
-const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/" };
+const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/#pilot" };
 
 // Fallback data so cards render even if API is unreachable
 const SAMPLE_BOARD = {
@@ -122,9 +122,13 @@ function renderBoard(data) {
         <div style="display:flex; gap:8px; align-items:center;">
           <button data-side="long" data-id="${n.id}">Long</button>
           <button data-side="short" data-id="${n.id}">Short</button>
-          ${ DEMOS[n.id]
-            ? `<a href="${DEMOS[n.id]}" target="_blank" rel="noopener" style="text-decoration:none"><button>Demo</button></a>`
-            : `` }
+         ${ DEMOS[n.id]
+  ? `
+     <a href="${DEMOS[n.id].replace('#pilot','')}" target="_blank" rel="noopener" style="text-decoration:none"><button>Demo</button></a>
+     <a href="${DEMOS[n.id]}" target="_blank" rel="noopener" style="text-decoration:none"><button>Request pilot</button></a>
+    `
+  : `` }
+
         </div>
       </div>
       <div class="notice">Exercise Track: ${n.exercise || 0}%</div>
