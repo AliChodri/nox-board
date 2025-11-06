@@ -1,14 +1,18 @@
 // ===== NOX app.js (safe init + simple-request trades) =====
+
+// 1) Update these if you redeploy your Apps Script later.
 const ENDPOINTS = {
   BOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=board",
   TRADE: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=trade",
   LEADERBOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=leaderboard"
 };
 
-// Map narrative IDs -> demo URLs
-const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/" };
+// 2) Demo buttons: map narrative IDs -> demo URLs
+const DEMOS = {
+  e2: "https://alichodri.github.io/nox-exercise-e2/"
+};
 
-// Fallback data so cards render even if API is unreachable
+// 3) Fallback data so cards render even if API is unreachable
 const SAMPLE_BOARD = {
   narratives: [
     { id: "e1", title: "On-device HR copilots", thesis: "Private HR assistants on laptops/phones (compliance, low latency).", price: 58, volume_24h: 90, last_move: +2, exercise: 52 },
@@ -91,7 +95,7 @@ function renderBoard(data) {
         const r = await fetch(ENDPOINTS.TRADE, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" }, // simple request (no preflight)
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload)                              // Apps Script reads e.postData.contents
         });
         const msg = await r.text();
         alert(msg);
