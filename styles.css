@@ -123,3 +123,25 @@ button:active{ transform: translateY(0) scale(.98) }
 @media (prefers-reduced-motion: reduce){
   *{ animation:none !important; transition:none !important }
 }
+/* META SECTION */
+.meta{display:grid; grid-template-columns: 1.2fr 1fr; gap:14px; margin-top:18px}
+@media (max-width: 900px){ .meta{grid-template-columns:1fr} }
+.meta__col{
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border:1px solid var(--border); border-radius:var(--radius); padding:14px; box-shadow: var(--shadow);
+}
+.meta__title{margin:0 0 10px; font-size:18px}
+
+/* Leaderboard */
+.lb{}
+.lb__row{display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,.04)}
+.lb__row:last-child{border-bottom:none}
+.lb__name{font-weight:700}
+.lb__score{color:var(--muted); font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace}
+
+/* Digest */
+.digest{font-size:14px; line-height:1.5; color:var(--text)}
+.digest h3{margin:10px 0 6px}
+.digest ol{margin:6px 0 0 18px}
+.btn--ghost{background:transparent; border-color:#2a2d34}
+.digest__actions{margin-top:10px}
