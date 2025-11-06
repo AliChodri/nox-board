@@ -51,6 +51,31 @@
   <!-- Board -->
   <main class="container">
     <div id="board" class="grid">
+      <!-- Leaderboard + Digest -->
+<section class="meta">
+  <div class="meta__col">
+    <h2 class="meta__title">Top Operators</h2>
+    <div id="leaderboard" class="lb">
+      <!-- populated by app.js -->
+      <div class="lb__row lb__row--sk"><div class="sk sk--title"></div></div>
+      <div class="lb__row lb__row--sk"><div class="sk sk--title"></div></div>
+      <div class="lb__row lb__row--sk"><div class="sk sk--title"></div></div>
+    </div>
+  </div>
+  <div class="meta__col">
+    <h2 class="meta__title">Narrative Digest</h2>
+    <div id="digest" class="digest">
+      <!-- populated by app.js -->
+      <div class="sk sk--text" style="height:16px;width:90%"></div>
+      <div class="sk sk--text" style="height:16px;width:80%"></div>
+      <div class="sk sk--text" style="height:16px;width:70%"></div>
+    </div>
+    <div class="digest__actions">
+      <a id="digestRefresh" href="#" class="btn btn--ghost">Refresh digest</a>
+    </div>
+  </div>
+</section>
+
       <!-- Skeletons shown until app.js renders data -->
       <div class="card card--skeleton"><div class="sk sk--title"></div><div class="sk sk--text"></div><div class="sk sk--row"></div></div>
       <div class="card card--skeleton"><div class="sk sk--title"></div><div class="sk sk--text"></div><div class="sk sk--row"></div></div>
