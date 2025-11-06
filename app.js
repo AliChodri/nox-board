@@ -3,10 +3,11 @@
 
 // Your Apps Script endpoints (leave as-is if they work for trading)
 const ENDPOINTS = {
-  BOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=board",
-  TRADE: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=trade",
-  LEADERBOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=leaderboard"
+  BOARD: "https://nox-proxy.<yourname>.workers.dev/board",
+  TRADE: "https://nox-proxy.<yourname>.workers.dev/trade",
+  LEADERBOARD: "https://nox-proxy.<yourname>.workers.dev/leaderboard"
 };
+
 
 // Optional: demo links
 const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/" };
