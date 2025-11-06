@@ -1,18 +1,17 @@
-// ===== NOX app.js (safe init + simple-request trades) =====
 
-// 1) Update these if you redeploy your Apps Script later.
+// ===== NOX app.js (robust key mapping + simple-request trades) =====
+
+// Your Apps Script endpoints (leave as-is if they work for trading)
 const ENDPOINTS = {
   BOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=board",
   TRADE: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=trade",
   LEADERBOARD: "https://script.google.com/macros/s/AKfycbwY4xV58FIJEQ359m3DSAyCoN1_YYxvRxbeG6kVojGr94XIadfinLs5PLC50qpvPe3_/exec?route=leaderboard"
 };
 
-// 2) Demo buttons: map narrative IDs -> demo URLs
-const DEMOS = {
-  e2: "https://alichodri.github.io/nox-exercise-e2/"
-};
+// Optional: demo links
+const DEMOS = { e2: "https://alichodri.github.io/nox-exercise-e2/" };
 
-// 3) Fallback data so cards render even if API is unreachable
+// Fallback data so cards render even if API is unreachable
 const SAMPLE_BOARD = {
   narratives: [
     { id: "e1", title: "On-device HR copilots", thesis: "Private HR assistants on laptops/phones (compliance, low latency).", price: 58, volume_24h: 90, last_move: +2, exercise: 52 },
@@ -21,19 +20,77 @@ const SAMPLE_BOARD = {
   ]
 };
 
+// --------- Tolerant mappers (fix "undefined" issues) ---------
+function normKey(k) {
+  return String(k || "")
+    .replace(/\u00A0/g, " ")     // NBSP -> space
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "_")        // spaces -> underscores
+    .replace(/[^a-z0-9_]/g, ""); // strip punctuation
+}
+function getByAliases(obj, aliases) {
+  // Try exact aliases first
+  for (const a of aliases) {
+    if (a in obj) return obj[a];
+  }
+  // Then try normalized-key match
+  const map = {};
+  for (const k of Object.keys(obj)) map[normKey(k)] = obj[k];
+  for (const a of aliases) {
+    const n = normKey(a);
+    if (n in map) return map[n];
+  }
+  return undefined;
+}
+
+function normalizeNarrativeItem(raw) {
+  // accept either flat item or [header->value] pairs
+  const item = typeof raw === "object" ? raw : {};
+
+  const id        = getByAliases(item, ["id"]);
+  const title     = getByAliases(item, ["title", "name"]);
+  const thesis    = getByAliases(item, ["thesis", "summary", "desc", "description"]);
+  const price     = Number(getByAliases(item, ["price"]));
+  const volume24h = Number(getByAliases(item, ["volume_24h", "volume24h", "volume"]));
+  const lastMove  = Number(getByAliases(item, ["last_move", "lastmove", "delta", "change"]));
+  const exercise  = Number(getByAliases(item, ["exercise", "conviction", "exercise_track"]));
+
+  return {
+    id: id ?? "",
+    title: title ?? "",
+    thesis: thesis ?? "",
+    price: Number.isFinite(price) ? price : 0,
+    volume_24h: Number.isFinite(volume24h) ? volume24h : 0,
+    last_move: Number.isFinite(lastMove) ? lastMove : 0,
+    exercise: Number.isFinite(exercise) ? exercise : 0
+  };
+}
+
 async function fetchBoard() {
   try {
     const r = await fetch(ENDPOINTS.BOARD, { cache: "no-store" });
     if (!r.ok) throw new Error("HTTP " + r.status);
     const j = await r.json();
-    if (!j || !Array.isArray(j.narratives) || j.narratives.length === 0) return SAMPLE_BOARD;
-    return j;
+
+    // accept several shapes: {narratives:[...]}, [...] or {data:[...]}
+    let arr = [];
+    if (Array.isArray(j)) arr = j;
+    else if (Array.isArray(j.narratives)) arr = j.narratives;
+    else if (Array.isArray(j.data)) arr = j.data;
+
+    // normalize every item
+    const normalized = arr.map(normalizeNarrativeItem).filter(x => x.title);
+    if (!normalized.length) return SAMPLE_BOARD;
+
+    return { narratives: normalized };
   } catch (e) {
     console.warn("Fetch failed, using SAMPLE_BOARD fallback:", e);
     return SAMPLE_BOARD;
   }
 }
 
+// --------- UI rendering & trading ---------
 function renderSparkline(canvas, points) {
   const ctx = canvas.getContext("2d");
   const w = canvas.width = canvas.clientWidth;
@@ -95,7 +152,7 @@ function renderBoard(data) {
         const r = await fetch(ENDPOINTS.TRADE, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" }, // simple request (no preflight)
-          body: JSON.stringify(payload)                              // Apps Script reads e.postData.contents
+          body: JSON.stringify(payload)
         });
         const msg = await r.text();
         alert(msg);
