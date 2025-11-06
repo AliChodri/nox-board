@@ -20,6 +20,14 @@ const SAMPLE_BOARD = {
   ]
 };
 
+function toast(t){
+  let n = document.createElement('div');
+  n.style.cssText = "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111317;border:1px solid #2a2d34;color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,.35)";
+  n.textContent = t;
+  document.body.appendChild(n);
+  setTimeout(()=>{ n.style.opacity='0'; n.style.transition='opacity .4s'; setTimeout(()=>n.remove(),400); }, 1400);
+}
+
 // --------- Tolerant mappers (fix "undefined" issues) ---------
 function normKey(k) {
   return String(k || "")
@@ -213,7 +221,8 @@ async function fetchAndRenderDigest() {
           body: JSON.stringify(payload)
         });
         const msg = await r.text();
-        alert(msg);
+        toast(msg);
+
         location.reload();
       } catch (e) {
         console.error(e);
