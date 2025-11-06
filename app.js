@@ -220,7 +220,9 @@ async function fetchAndRenderDigest() {
 }
 
 // Wait for DOM before wiring UI
+// Wait for DOM before wiring UI
 window.addEventListener("DOMContentLoaded", async () => {
+  // existing: sign-handle button
   const loginBtn = document.getElementById("loginBtn");
   if (loginBtn) {
     loginBtn.addEventListener("click", () => {
@@ -231,6 +233,18 @@ window.addEventListener("DOMContentLoaded", async () => {
     console.warn("#loginBtn not found");
   }
 
+  // existing: render the board
   const board = await fetchBoard();
   renderBoard(board);
+
+  // NEW: render Leaderboard + Digest and hook the refresh link
+  fetchAndRenderLeaderboard();
+  fetchAndRenderDigest();
+  const refresh = document.getElementById("digestRefresh");
+  if (refresh) {
+    refresh.addEventListener("click", (e) => {
+      e.preventDefault();
+      fetchAndRenderDigest();
+    });
+  }
 });
