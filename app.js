@@ -137,6 +137,60 @@ function renderBoard(data) {
     renderSparkline(spark, pts);
   });
 
+// --- Leaderboard + Digest renderers ---
+const SAMPLE_LEADERBOARD = [
+  { user: "alpha", score: 120 },
+  { user: "beta", score: 95 },
+  { user: "gamma", score: 80 }
+];
+
+async function fetchAndRenderLeaderboard() {
+  const el = document.getElementById("leaderboard");
+  if (!el) return;
+  try {
+    const r = await fetch(ENDPOINTS.LEADERBOARD, { cache: "no-store" });
+    let data = [];
+    if (r.ok) {
+      const j = await r.json();
+      data = Array.isArray(j) ? j : (Array.isArray(j.leaderboard) ? j.leaderboard : []);
+    }
+    if (!data.length) data = SAMPLE_LEADERBOARD;
+    el.innerHTML = "";
+    data.slice(0, 10).forEach((row, i) => {
+      const name = row.user || row.name || `user${i+1}`;
+      const score = row.score ?? row.points ?? row.p ?? 0;
+      const div = document.createElement("div");
+      div.className = "lb__row";
+      div.innerHTML = `<div class="lb__name">#${i+1} ${name}</div><div class="lb__score">${score}</div>`;
+      el.appendChild(div);
+    });
+  } catch {
+    el.innerHTML = SAMPLE_LEADERBOARD.map((r,i)=>`<div class="lb__row"><div class="lb__name">#${i+1} ${r.user}</div><div class="lb__score">${r.score}</div></div>`).join("");
+  }
+}
+
+async function fetchAndRenderDigest() {
+  const box = document.getElementById("digest");
+  if (!box) return;
+  try {
+    const r = await fetch(ENDPOINTS.BOARD.replace("/board","/digest"), { cache: "no-store" });
+    if (!r.ok) throw new Error("digest HTTP " + r.status);
+    const j = await r.json();
+    // j may be {html, md}; prefer html if present
+    if (j && j.html) {
+      box.innerHTML = j.html;
+    } else if (j && j.md) {
+      // simple md fallback: lines to <p>
+      box.innerHTML = j.md.split("\n").map(l => `<p>${l}</p>`).join("");
+    } else {
+      box.innerHTML = "<p>No digest available yet.</p>";
+    }
+  } catch {
+    box.innerHTML = "<p>No digest available yet.</p>";
+  }
+}
+
+  
   // Click handlers for trades
   grid.querySelectorAll("button[data-side]").forEach(btn => {
     btn.addEventListener("click", async () => {
