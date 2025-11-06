@@ -1,11 +1,10 @@
-
 // ===== NOX app.js (robust key mapping + simple-request trades) =====
 
 // Your Apps Script endpoints (leave as-is if they work for trading)
 const ENDPOINTS = {
-  BOARD: "https://nox-proxy.<yourname>.workers.dev/board",
-  TRADE: "https://nox-proxy.<yourname>.workers.dev/trade",
-  LEADERBOARD: "https://nox-proxy.<yourname>.workers.dev/leaderboard"
+  BOARD: "https://nox-proxy.ali-t-chodri.workers.dev/board",
+  TRADE: "https://nox-proxy.ali-t-chodri.workers.dev/trade",
+  LEADERBOARD: "https://nox-proxy.ali-t-chodri.workers.dev/leaderboard"
 };
 
 
